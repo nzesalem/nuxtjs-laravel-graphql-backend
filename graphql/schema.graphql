@@ -4,15 +4,29 @@ scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
 "A datetime string with format `Y-m-d H:i:s`, e.g. `2018-05-23 13:43:32`."
 scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
 
+
 type Query {
     users: [User!]! @paginate(defaultCount: 10)
     user(id: ID @eq): User @find
+    me: User @auth(guard: "api")
+}
+
+type Mutation {
+    logIn (
+        email: String @rules(apply: ["required"])
+        password: String @rules(apply: ["required"])
+    ): AuthResponse @field(resolver: "Auth\\LoginMutator")
+
+    logOut: Boolean @field(resolver: "Auth\\LogoutMutator")
 }
 
 type User {
     id: ID!
     name: String!
     email: String!
-    created_at: DateTime!
-    updated_at: DateTime!
+}
+
+type AuthResponse {
+    token: String
+    expiresIn: String
 }
